@@ -20,6 +20,7 @@ DHT sensor = DHT();
 void setup() {
    Wire.begin(4);                // join i2c bus with address #4
   Wire.onReceive(receiveEvent); // register event
+   Wire.onRequest(requestEvent); // register event
    Serial.begin(9600);
    
     // методом attach объявляем к какому контакту подключен
@@ -112,3 +113,10 @@ char q={Serial.read()- '0'};
     if (q==1) {digitalWrite(pin, HIGH); Serial.print(pin); Serial.println(" on");}
     if (q==0) {digitalWrite(pin, LOW);  Serial.print(pin); Serial.println(" off");}
     }}
+    // function that executes whenever data is requested by master
+// this function is registered as an event, see setup()
+void requestEvent()
+{
+  Wire.write("hello "); // respond with message of 6 bytes
+                       // as expected by master
+}
