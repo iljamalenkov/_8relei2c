@@ -30,14 +30,14 @@ void setup() {
     // после подачи питания ждём секунду до готовности сенсора к работе
     delay(1000);
   // set the digital pin as output:
-  pinMode(2, OUTPUT);
-pinMode(3, OUTPUT);   
-pinMode(4, OUTPUT);   
-pinMode(5, OUTPUT);   
-pinMode(6, OUTPUT);
-pinMode(7, OUTPUT);   
-pinMode(10, OUTPUT);   
-pinMode(9, OUTPUT);
+  pinMode(2, OUTPUT); //a
+pinMode(3, OUTPUT);   //b
+pinMode(4, OUTPUT);   //c
+pinMode(5, OUTPUT);   //d
+pinMode(6, OUTPUT);   //e
+pinMode(9, OUTPUT);   //f
+pinMode(10, OUTPUT);   //g
+pinMode(11, OUTPUT);   //h
 
  
 }
@@ -107,9 +107,9 @@ char q={Serial.read()- '0'};
     if (q==51) {pin=4;}
     if (q==52) {pin=5;}
     if (q==53) {pin=6;}
-    if (q==54) {pin=7;}
-    if (q==55) {pin=9;}
-    if (q==56) {pin=10;}
+    if (q==54) {pin=9;}
+    if (q==55) {pin=10;}
+    if (q==56) {pin=11;}
     if (q==1) {digitalWrite(pin, HIGH); Serial.print(pin); Serial.println(" on");}
     if (q==0) {digitalWrite(pin, LOW);  Serial.print(pin); Serial.println(" off");}
     }}
