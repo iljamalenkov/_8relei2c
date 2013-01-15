@@ -8,49 +8,40 @@ long interval = 1000;           // interval at which to blink (milliseconds)
 char c;
 int x=0;
 int pin=0;
+#include <EEPROM.h>
+boolean pstat[8];
+byte pnum[8]={2,3,4,5,6,9,10,11};
+// the current address in the EEPROM (i.e. which byte
+// we're going to write to next)
 
 #include <Wire.h>
-
-// подключаем библиотеку
-#include <dht.h>
-
-// создаём объект-сенсор
-DHT sensor = DHT();
+const byte MY_ADDRESS = 42;
+const byte OTHER_ADDRESS = 25;
 
 void setup() {
-   Wire.begin(4);                // join i2c bus with address #4
-  Wire.onReceive(receiveEvent); // register event
-   Wire.onRequest(requestEvent); // register event
+
    Serial.begin(9600);
-   
-    // методом attach объявляем к какому контакту подключен
-    // сенсор. В нашем примере это нулевой аналоговый контакт
-    sensor.attach(A1);
-    //
-    // после подачи питания ждём секунду до готовности сенсора к работе
-    delay(1000);
-  // set the digital pin as output:
-  pinMode(2, OUTPUT); //a
-pinMode(3, OUTPUT);   //b
-pinMode(4, OUTPUT);   //c
-pinMode(5, OUTPUT);   //d
-pinMode(6, OUTPUT);   //e
-pinMode(9, OUTPUT);   //f
-pinMode(10, OUTPUT);   //g
-pinMode(11, OUTPUT);   //h
-
+   Wire.begin (MY_ADDRESS);
  
+  Wire.onReceive (receiveEvent); 
+    
+  // set the digital pin as output:
+ 
+   for (int ii = 0; ii<=8; ii++)
+   {
+     pinMode(pnum[ii], OUTPUT);
+     if (EEPROM.read(ii) >> 0) digitalWrite(pnum[ii], HIGH); else digitalWrite(pnum[ii], LOW);
+    }
+
+
 }
-
-
 
 void loop()
 {
  serialRead();
    delay (10);
    
-    // метод update заставляет сенсор выдать текущие измерения
-    if (tt==500) tempRead();
+   
     if (tt>500) tt=0;
    
 tt++;
@@ -61,57 +52,37 @@ tt++;
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany)
 {
-  while(1 < Wire.available()) // loop through all but the last
-  {
+  while (Wire.available () > 0)
+  {byte c;
    c = Wire.read(); // receive byte as a character
     Serial.print(c);         // print the character
+    if (c=='a') {pin=0;}
+    if (c=='b') {pin=1;}
+    if (c=='c') {pin=2;}
+    if (c=='d') {pin=3;}
+    if (c=='e') {pin=4;}
+    if (c=='f') {pin=5;}
+    if (c=='g') {pin=6;}
+    if (c=='h') {pin=7;}
+    if (c=='1') {digitalWrite(pnum[pin], HIGH); EEPROM.write(pin,1); Serial.print(pin); Serial.println(" on");}
+    if (c=='0') {digitalWrite(pnum[pin], LOW);  EEPROM.write(pin,0); Serial.print(pin); Serial.println(" off");}
   }
-  x = Wire.read();    // receive byte as an integer
-  Serial.println(x);         // print the integer
+  
 }
 
-void tempRead ()
-  {  sensor.update();
-
-    switch (sensor.getLastError())
-    {
-        case DHT_ERROR_OK:
-            char msg[128];
-            // данные последнего измерения можно считать соответствующими
-            // методами
-            sprintf(msg, "Temperature = %dC, Humidity = %d%%", 
-                    sensor.getTemperatureInt(), sensor.getHumidityInt());
-            Serial.println(msg);
-            break;
-        case DHT_ERROR_START_FAILED_1:
-        
-            Serial.println("Error: start failed (stage 1)");
-             sensor.attach(A1);
-                delay (100);
-            break;
-        case DHT_ERROR_START_FAILED_2:
-            Serial.println("Error: start failed (stage 2)");
-            break;
-        case DHT_ERROR_READ_TIMEOUT:
-            Serial.println("Error: read timeout");
-            break;
-        case DHT_ERROR_CHECKSUM_FAILURE:
-            Serial.println("Error: checksum error");
-            break;
-    }}
     void serialRead(){
        if (Serial.available() > 0) {
 char q={Serial.read()- '0'};
-    if (q==49) {pin=2;}
-    if (q==50) {pin=3;}
-    if (q==51) {pin=4;}
-    if (q==52) {pin=5;}
-    if (q==53) {pin=6;}
-    if (q==54) {pin=9;}
-    if (q==55) {pin=10;}
-    if (q==56) {pin=11;}
-    if (q==1) {digitalWrite(pin, HIGH); Serial.print(pin); Serial.println(" on");}
-    if (q==0) {digitalWrite(pin, LOW);  Serial.print(pin); Serial.println(" off");}
+    if (q==49) {pin=0;}
+    if (q==50) {pin=1;}
+    if (q==51) {pin=2;}
+    if (q==52) {pin=3;}
+    if (q==53) {pin=4;}
+    if (q==54) {pin=5;}
+    if (q==55) {pin=6;}
+    if (q==56) {pin=7;}
+    if (q==1) {digitalWrite(pnum[pin], HIGH); EEPROM.write(pin,1);Serial.print(pin); Serial.println(" on");}
+    if (q==0) {digitalWrite(pnum[pin], LOW);  EEPROM.write(pin,0);Serial.print(pin); Serial.println(" off");}
     }}
     // function that executes whenever data is requested by master
 // this function is registered as an event, see setup()
