@@ -15,8 +15,8 @@ byte pnum[8]={2,3,4,5,6,9,10,11};
 // we're going to write to next)
 
 #include <Wire.h>
-const byte MY_ADDRESS = 42;
-const byte OTHER_ADDRESS = 25;
+const byte MY_ADDRESS = 2;
+const byte OTHER_ADDRESS = 1;
 
 void setup() {
 
@@ -24,7 +24,7 @@ void setup() {
    Wire.begin (MY_ADDRESS);
  
   Wire.onReceive (receiveEvent); 
-    
+  Wire.onRequest(requestEvent); // register event  
   // set the digital pin as output:
  
    for (int ii = 0; ii<=8; ii++)
@@ -39,7 +39,7 @@ void setup() {
 void loop()
 {
  serialRead();
-   delay (10);
+   delay (100);
    
    
     if (tt>500) tt=0;
@@ -87,7 +87,11 @@ char q={Serial.read()- '0'};
     // function that executes whenever data is requested by master
 // this function is registered as an event, see setup()
 void requestEvent()
-{
-  Wire.write("hello "); // respond with message of 6 bytes
-                       // as expected by master
+{ char qq[8];
+ for (int ii = 0; ii<=8; ii++)
+ {
+  if (EEPROM.read(ii) >> 0) {qq[ii]='1';} else  {qq[ii]='0';}
+  }
+Wire.write(qq);
+  
 }
